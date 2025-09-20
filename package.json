@@ -1,0 +1,16 @@
+{
+  "name": "memorygame",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "description": "",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "scripts": {
+    "start": "concurrently \"pnpm --filter @memorygame/backend start\" \"pnpm --filter @memorygame/frontend dev\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
