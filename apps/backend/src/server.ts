@@ -7,7 +7,6 @@ import { GameService } from "./services/game";
 
 export async function createServer(redisUrl: string, jwtSecret: string) {
 
-
 	const server = Fastify({
 		logger: true,
 	});
