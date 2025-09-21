@@ -13,7 +13,6 @@
     "@redis/client": "^5.8.2",
     "cors": "^2.8.5",
     "dotenv": "^17.2.2",
-    "drizzle-orm": "^0.44.5",
     "express": "^5.1.0",
     "fastify": "^5.6.0",
     "jsonwebtoken": "^9.0.2",
@@ -28,7 +27,6 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.5.2",
     "@types/pg": "^8.15.5",
-    "drizzle-kit": "^0.31.4",
     "tsx": "^4.20.5",
     "typescript": "^5.9.2"
   }

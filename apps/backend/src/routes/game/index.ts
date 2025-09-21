@@ -2,7 +2,7 @@ import { LeaderboardResponse, NextLevelResponse, StartGameResponse } from "@memo
 import { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { GameService } from "../../services/game";
-import { createPayload, GameServiceError } from "../../services/game/types";
+import { createErrorPayload, GameServiceError } from "../../services/game/types";
 
 // Schema for the start game request body.
 const startGameSchema = z.object({
@@ -77,7 +77,7 @@ export function registerGameRoutes(server: FastifyInstance, gameService: GameSer
 			if (error instanceof GameServiceError) {
 				return reply.status(400).send(error.toPayload());
 			} else {
-				return reply.status(500).send(createPayload("INTERNAL_ERROR", "Internal server error"));
+				return reply.status(500).send(createErrorPayload("INTERNAL_ERROR", "Internal server error"));
 			}
 		}
 
@@ -90,7 +90,7 @@ export function registerGameRoutes(server: FastifyInstance, gameService: GameSer
 
 		// Check for token.
 		if (!token) {
-			return reply.status(401).send(createPayload("UNAUTHORIZED", "Unauthorized"));
+			return reply.status(401).send(createErrorPayload("UNAUTHORIZED", "Unauthorized"));
 		}
 
 		try {
@@ -102,7 +102,7 @@ export function registerGameRoutes(server: FastifyInstance, gameService: GameSer
 			if (error instanceof GameServiceError) {
 				return reply.status(400).send(error.toPayload());
 			} else {
-				return reply.status(500).send(createPayload("INTERNAL_ERROR", "Internal server error"));
+				return reply.status(500).send(createErrorPayload("INTERNAL_ERROR", "Internal server error"));
 			}
 
 		}
@@ -114,8 +114,7 @@ export function registerGameRoutes(server: FastifyInstance, gameService: GameSer
 
 		try {
 
-			const top = 10;
-			const leaderboard = await gameService.getLeaderboard(top);
+			const leaderboard = await gameService.getLeaderboard();
 
 			const response: LeaderboardResponse = {
 				scores: leaderboard
@@ -124,7 +123,7 @@ export function registerGameRoutes(server: FastifyInstance, gameService: GameSer
 			return reply.send(response);
 
 		} catch (error) {
-			return reply.status(500).send({ error: "Internal server error" });
+			return reply.status(500).send(createErrorPayload("INTERNAL_ERROR", "Internal server error"));
 		}
 
 	});

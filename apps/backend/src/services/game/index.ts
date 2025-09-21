@@ -1,20 +1,16 @@
 import { RedisClientType } from "@redis/client";
-import { desc } from "drizzle-orm";
-import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import jwt from "jsonwebtoken";
-import { leaderboard } from "../../db/schema";
+import { getTop10Scores, submitLeaderboardScore } from "./leaderboard";
 import { ERRORS, GameScore, GameServiceError, GameSession, TokenData } from "./types";
 import { generateRandomStep } from "./utils";
 
 /** Service to manage game sessions, including starting sessions, validating sequences, and more. */
 export class GameService {
 
-	private database: NodePgDatabase;
 	private redisClient: RedisClientType;
 	private jwtSecret: string;
 
-	constructor(database: NodePgDatabase, redisClient: RedisClientType, jwtSecret: string) {
-		this.database = database;
+	constructor(redisClient: RedisClientType, jwtSecret: string) {
 		this.redisClient = redisClient;
 		this.jwtSecret = jwtSecret;
 	}
@@ -122,34 +118,27 @@ export class GameService {
 			throw new GameServiceError(ERRORS.INTERNAL_ERROR, "Invalid token");
 		}
 
-		const session = await this.getSession(sessionToken);
+		try {
 
-		const res = await this.database.insert(leaderboard).values({
-			displayName: tokenData.displayName,
-			score: session.sequence.length
-		});
+			const session = await this.getSession(sessionToken);
 
-		await this.deleteSession(sessionToken);
+			await Promise.all([
+				submitLeaderboardScore(this.redisClient, tokenData.displayName, sessionToken, session.sequence.length),
+				this.deleteSession(sessionToken)
+			]);
 
-		if (!res.rowCount) {
+			return {
+				displayName: tokenData.displayName,
+				score: session.sequence.length
+			};
+
+		} catch {
 			throw new GameServiceError(ERRORS.INTERNAL_ERROR, "Failed to submit score");
 		}
 
-		return {
-			displayName: tokenData.displayName,
-			score: session.sequence.length
-		};
-
 	}
 
-	public async getLeaderboard(top: number): Promise<GameScore[]> {
-
-		const scores: GameScore[] = await this.database.select({ displayName: leaderboard.displayName, score: leaderboard.score })
-			.from(leaderboard).orderBy(desc(leaderboard.score)).limit(top);
-
-		return scores;
-
-	}
+	public getLeaderboard = async (): Promise<GameScore[]> => getTop10Scores(this.redisClient);
 
 }
 

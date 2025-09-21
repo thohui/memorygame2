@@ -38,7 +38,7 @@ export interface ErrorPayload {
 }
 
 
-export function createPayload(type: ErrorType, message: string): ErrorPayload {
+export function createErrorPayload(type: ErrorType, message: string): ErrorPayload {
 	return {
 		type,
 		error: message
@@ -55,7 +55,7 @@ export class GameServiceError extends Error {
 	}
 
 	public toPayload(): ErrorPayload {
-		return createPayload(
+		return createErrorPayload(
 			this.errorType,
 			this.message
 		);
