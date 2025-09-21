@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useGameClient } from "../hooks/useGameClient";
 import { useGameState } from "../hooks/useGameState";
+import { useSubmitSequence } from "../hooks/useSubmitSequence";
 import { GameState } from "../lib/client";
 import { GameTile } from "./GameTile";
 
@@ -60,17 +61,15 @@ export function GameGrid() {
 	const gameState = useGameState();
 	const [userSequences, setUserSequences] = useState<number[]>([]);
 
-	useEffect(() => {
-
-	}, [gameState]);
+	const { mutateAsync, isPending } = useSubmitSequence();
 
 	const handleUserClick = async (id: number) => {
 
 		// Sanity check
 		if (!gameState) return;
 
-		// Ignore clicks during animation
-		if (activeTile !== null) return;
+		// Ignore clicks during animation or if the we are submitting.
+		if (activeTile !== null || isPending) return;
 
 		const newSequence = [...userSequences, id];
 		setUserSequences(newSequence);
@@ -92,12 +91,14 @@ export function GameGrid() {
 
 		// If the sequence length matches the game sequence length, submit it
 		if (newSequence.length === gameState.sequence.length) {
-			try {
-				await gameClient.submitSequence(newSequence);
-				setUserSequences([]);
-			} catch {
-				handleInputError();
-			}
+			await mutateAsync(newSequence, {
+				onSuccess: () => {
+					setUserSequences([]);
+				},
+				onError: () => {
+					handleInputError();
+				}
+			});
 		}
 
 	};
@@ -118,4 +119,4 @@ export function GameGrid() {
 		</div>
 	);
 
-}
+};
