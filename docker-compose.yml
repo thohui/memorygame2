@@ -1,14 +1,4 @@
 services:
-  postgres:
-    image: ghcr.io/cloudnative-pg/postgresql:16.1
-    restart: always
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
   redis:
     image: redis:7.2
     container_name: redis_server
@@ -20,5 +10,4 @@ services:
 
 
 volumes:
-  postgres_data:
   redis_data:
