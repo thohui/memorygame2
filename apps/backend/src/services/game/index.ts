@@ -1,7 +1,8 @@
 import { RedisClientType } from "@redis/client";
 import jwt from "jsonwebtoken";
+import { ERRORS, GameServiceError } from "./error";
 import { getTop10Scores, submitLeaderboardScore } from "./leaderboard";
-import { ERRORS, GameScore, GameServiceError, GameSession, TokenData } from "./types";
+import { GameScore, GameSession, TokenData } from "./types";
 import { generateRandomStep } from "./utils";
 
 /** Service to manage game sessions, including starting sessions, validating sequences, and more. */

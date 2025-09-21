@@ -2,7 +2,7 @@ import { LeaderboardResponse, NextLevelResponse, StartGameResponse } from "@memo
 import { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { GameService } from "../../services/game";
-import { createErrorPayload, GameServiceError } from "../../services/game/types";
+import { GameServiceError, createErrorPayload } from "../../services/game/error";
 
 // Schema for the start game request body.
 const startGameSchema = z.object({
